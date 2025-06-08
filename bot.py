@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 import discord
 from discord.ext import commands
+from terminal import AIDebateBot, Player, simulate_round
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -15,11 +16,6 @@ load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 
 
-def alice(input = ""):
-    return "Hi."
-
-def bob(input = ""):
-    return "Bye."
 
 async def send_challenge(ctx):
     # Create a button view for accepting the debate challenge
@@ -90,9 +86,11 @@ async def debate(ctx):
         )
         await ctx.send(embed=embed)
         
+
+        FIRST_PLAYER = (round + 1) % 2
+
         # Get responses from Alice and Bob
-        alice_response = alice(alice_instructions.content)
-        bob_response = bob(bob_instructions.content)
+        alice_response, bob_response = simulate_round(FIRST_PLAYER, round - 1, alice, bob, alice_instructions.content, bob_instructions.content)
         
         await ctx.send(f"Alice: {alice_response}")
         await ctx.send(f"Bob: {bob_response}")
