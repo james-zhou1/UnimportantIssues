@@ -10,5 +10,10 @@ PROMPT2 = "You are a bot and your goal is to argue your position. If you are con
 
 MESSAGE_HISTORY = []
 
+def get_position()
+    return "The sky is green.", "The sky is purple."
+
+
+POSITION1, POSITION2 = get_position()
+
 for round in range(12):
-    
