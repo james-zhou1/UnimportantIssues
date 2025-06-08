@@ -35,19 +35,21 @@ async def send_challenge(ctx):
 
     # Create and send the button
     view = AcceptDebateButton()
+    view.timeout = 30.0
     await ctx.send("Click the button to accept the debate challenge:", view=view)
 
     # Wait for someone to click the button
-    timeout = 30.0
     try:
         await view.wait()
     except asyncio.TimeoutError:
         await ctx.send("No one accepted the debate challenge. Please try again.")
-        return
+        return None
 
-    if view.value:
-        await ctx.send(f"{view.value.mention} has accepted the challenge!")
+    if not view.value:
+        await ctx.send("No one accepted the debate challenge. Please try again.")
+        return None
 
+    await ctx.send(f"{view.value.mention} has accepted the challenge!")
     return view.value.id, ctx.author.id
 
 @bot.command(name='debate')
@@ -212,16 +214,31 @@ async def debate(ctx):
         # Get responses from Alice and Bob
         alice_response, bob_response = simulate_round(FIRST_PLAYER, round - 1, alice_player_obj, bob_player_obj, alice_instructions.content, bob_instructions.content)
         
-        await asyncio.sleep(5)
         if FIRST_PLAYER == 0:
+            typing_embed = discord.Embed(description="Alice is typing...", color=discord.Color.blue())
+            typing_msg = await ctx.send(embed=typing_embed)
+            await asyncio.sleep(2)
+            await typing_msg.delete()
             await ctx.send(f"Alice: {alice_response}")
-            await asyncio.sleep(5)
+            
+            typing_embed = discord.Embed(description="Bob is typing...", color=discord.Color.blue()) 
+            typing_msg = await ctx.send(embed=typing_embed)
+            await asyncio.sleep(2)
+            await typing_msg.delete()
             await ctx.send(f"Bob: {bob_response}")
         else:
+            typing_embed = discord.Embed(description="Bob is typing...", color=discord.Color.blue())
+            typing_msg = await ctx.send(embed=typing_embed)
+            await asyncio.sleep(2) 
+            await typing_msg.delete()
             await ctx.send(f"Bob: {bob_response}")
-            await asyncio.sleep(5)
+            
+            typing_embed = discord.Embed(description="Alice is typing...", color=discord.Color.blue())
+            typing_msg = await ctx.send(embed=typing_embed)
+            await asyncio.sleep(2)
+            await typing_msg.delete()
             await ctx.send(f"Alice: {alice_response}")
-        await asyncio.sleep(5)
+        await asyncio.sleep(2)
 
         FIRST_PLAYER ^= 1
         
