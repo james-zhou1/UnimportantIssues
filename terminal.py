@@ -2,7 +2,7 @@ import json
 import os
 from groq import Groq
 
-client = Groq(api_key="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")
+client = Groq(api_key=os.getenv('GROQ_TOKEN'))
 
 class AIDebateBot:
     def __init__(self, name, system_prompt):
@@ -92,6 +92,7 @@ def simulate_round(first_player: int, round_num: int, player0: Player, player1: 
 
     player0.add_round(round_num, first_player, first_response, rebuttal, player0_coaching)
     player1.add_round(round_num, first_player, rebuttal, first_response, player1_coaching)
+    
     
 
 def simulate_debate( player0: Player, player1: Player, rounds=3):
