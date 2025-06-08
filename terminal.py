@@ -1,6 +1,8 @@
 import json
 import os
 from groq import Groq
+from dotenv import load_dotenv
+load_dotenv()
 
 client = Groq(api_key=os.getenv('GROQ_TOKEN'))
 
@@ -36,7 +38,6 @@ class Player:
         self.position = position
         self.playernum = playernum
         self.round_history = []
-        self.initial_coaching
 
         system_prompt = f"""You are a debate bot. Your goal is to argue your position: {self.position}. 
         If you are convinced by the opponent, you should say the phrase 'I concede.' Never add extra prose. 
@@ -85,10 +86,10 @@ def simulate_round(first_player: int, round_num: int, player0: Player, player1: 
     # who goes first
     if first_player == 0:
         p0_response = player0.play_round(round_num, first_player, player0_coaching, "")
-        p1_response = player1.play_round(round_num, first_player, player1_coaching, first_response)
+        p1_response = player1.play_round(round_num, first_player, player1_coaching, p0_response)
     else:
         p1_response = player1.play_round(round_num, first_player, player1_coaching, "")
-        p0_response = player0.play_round(round_num, first_player, player0_coaching, first_response)
+        p0_response = player0.play_round(round_num, first_player, player0_coaching, p1_response)
 
     player0.add_round(round_num, first_player, p0_response, p1_response, player0_coaching)
     player1.add_round(round_num, first_player, p1_response, p0_response, player1_coaching)
