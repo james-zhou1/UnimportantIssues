@@ -14,6 +14,10 @@ load_dotenv()
 # Get the token from environment variable
 TOKEN = os.getenv('DISCORD_TOKEN')
 
+TOPICS = {
+    "the color of the sky": ("The color of the sky is green", "The color of the sky is purple")
+}
+
 
 def alice(input = ""):
     return "Hi."
@@ -54,6 +58,21 @@ async def send_challenge(ctx):
 async def debate(ctx):
     alice_id, bob_id = await send_challenge(ctx)
 
+
+    import random
+    
+    # Randomly select a topic and its stances
+    topic = random.choice(list(TOPICS.keys()))
+    stances = TOPICS[topic]
+    
+    # Randomly assign stances to Alice and Bob
+    if random.random() < 0.5:
+        alice_stance, bob_stance = stances
+    else:
+        bob_stance, alice_stance = stances
+
+
+
     NUM_ROUNDS = 3
 
     for round in range(1, NUM_ROUNDS + 1):
@@ -90,6 +109,7 @@ async def debate(ctx):
         )
         await ctx.send(embed=embed)
         
+
         # Get responses from Alice and Bob
         alice_response = alice(alice_instructions.content)
         bob_response = bob(bob_instructions.content)
