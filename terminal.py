@@ -28,6 +28,7 @@ class AIDebateBot:
         )
 
         response = chat_completion.choices[0].message.content
+
         return response
 
 
@@ -43,7 +44,7 @@ class Player:
         If you are convinced by the opponent, you should say the phrase 'I concede.' Never add extra prose. 
          All your input will be in JSON format representing the coaching instruction for this round, the round instruction for this round, and the history of the debate. 
          Here is how the debate will work by round: [coaching for you, P0 argues,P1 responds], [coaching for you, P1 argues,P0 responds], etc. 
-        You are player {playernum}."""
+        You are player {playernum}. IMPORTANT: your output should just be your response to the round_instructions. Not a JSON."""
         
         self.debate_bot = AIDebateBot(name=f"Player {playernum}", system_prompt=system_prompt)
 
@@ -85,17 +86,20 @@ def simulate_round(first_player: int, round_num: int, player0: Player, player1: 
 
     # who goes first
     if first_player == 0:
-        p0_response = player0.play_round(round_num, first_player, player0_coaching, "")["response"]
-        p1_response = player1.play_round(round_num, first_player, player1_coaching, p0_response)["response"]
+        p0_response = player0.play_round(round_num, first_player, player0_coaching, "")
+        p1_response = player1.play_round(round_num, first_player, player1_coaching, p0_response)
     else:
-        p1_response = player1.play_round(round_num, first_player, player1_coaching, "")["response"]
-        p0_response = player0.play_round(round_num, first_player, player0_coaching, p1_response)["response"]
+        p1_response = player1.play_round(round_num, first_player, player1_coaching, "")
+        p0_response = player0.play_round(round_num, first_player, player0_coaching, p1_response)
 
     player0.add_round(round_num, first_player, p0_response, p1_response, player0_coaching)
     player1.add_round(round_num, first_player, p1_response, p0_response, player1_coaching)
     
     return p0_response, p1_response
 
+
+def tiebreaker(player0: Player, player1: Player, player0_prompt: str, player1_prompt: str):
+    tiebreaker_prompt = f""""""
 
 def simulate_debate( player0: Player, player1: Player, rounds=3):
 
