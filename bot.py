@@ -62,6 +62,16 @@ async def debate(ctx):
     # Randomly select a topic and its stances
     topic = random.choice(list(TOPICS.keys()))
     stances = TOPICS[topic]
+
+    # Create embed to show topic and stances
+    embed = discord.Embed(
+        title="Debate Topic",
+        description=f"The topic is: {topic}",
+        color=discord.Color.blue()
+    )
+    embed.add_field(name="Alice's Position", value=stances[0], inline=False)
+    embed.add_field(name="Bob's Position", value=stances[1], inline=False)
+    await ctx.send(embed=embed)
     
     # Randomly assign stances to Alice and Bob
     if random.random() < 0.5:
@@ -74,7 +84,7 @@ async def debate(ctx):
 
     FIRST_PLAYER = random.randint(0, 1)
 
-    NUM_ROUNDS = 1
+    NUM_ROUNDS = 2
 
     for round in range(1, NUM_ROUNDS + 1):
         # Send round 1 message as an embed
