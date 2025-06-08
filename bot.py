@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 import discord
 from discord.ext import commands
-from terminal import AIDebateBot, Player, simulate_round
+from terminal import AIDebateBot, Player, simulate_round, tiebreaker
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -74,7 +74,7 @@ async def debate(ctx):
 
     FIRST_PLAYER = random.randint(0, 1)
 
-    NUM_ROUNDS = 3
+    NUM_ROUNDS = 1
 
     for round in range(1, NUM_ROUNDS + 1):
         # Send round 1 message as an embed
@@ -267,6 +267,41 @@ async def debate(ctx):
             )
             await ctx.send(embed=embed)
             return
+
+
+    embed = discord.Embed(
+        title="Tiebreaker",
+        description="There was a tie! The JUDGE will now decide who wins.",
+        color=discord.Color.yellow()
+    )
+    embed.set_image(url="https://media.discordapp.net/attachments/1006714230365503650/1381403673703350302/judge-courtroom.png?ex=684763ed&is=6846126d&hm=d379b256afe8495d6066372848d5a82647a5f7d1f753c9f70dd28cd87940dfdd&=&format=webp&quality=lossless&width=440&height=402")
+    await ctx.send(embed=embed)
+
+
+    # Tiebreaker
+    await ctx.send("Alice's coach, please provide a short message explaining why Alice should win:")
+    alice_coach_message = await bot.wait_for('message', check=lambda m: m.author == ctx.author)
+    alice_coach_message = alice_coach_message.content
+    
+    await ctx.send("Bob's coach, please provide a short message explaining why Bob should win:")
+    bob_coach_message = await bot.wait_for('message', check=lambda m: m.author == ctx.author)
+    bob_coach_message = bob_coach_message.content
+
+    tiebreaker_result = tiebreaker(alice_player_obj, bob_player_obj, alice_coach_message, bob_coach_message)
+    if tiebreaker_result["winner"] == "Alice":
+        embed = discord.Embed(
+            title="Alice Wins!",
+            description=tiebreaker_result["explanation"],
+            color=discord.Color.yellow()
+        )
+    else:
+        embed = discord.Embed(
+            title="Bob Wins!",
+            description=tiebreaker_result["explanation"],
+            color=discord.Color.yellow()
+        )
+
+    await ctx.send(embed=embed)
 
 # Start the bot
 bot.run(TOKEN)

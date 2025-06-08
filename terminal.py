@@ -14,7 +14,7 @@ class AIDebateBot:
     def get_response(self, user_message=None):
         chat_completion = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
-            max_tokens=300,
+            max_tokens=150,
              messages=[
                 {
                     "role": "system",
@@ -56,14 +56,15 @@ class Player:
             instructions = f"This is the opponent's message. Respond to it: '{opponent_message}'"
         
         user_prompt = {
-            "coaching_prompt": coaching_prompt,
+            "coaching_prompt": "This is a message from your coach: " + coaching_prompt,
             "round_instructions": instructions,
             "round_history": self.round_history
         }
 
+        print("Input to player " + str(self.playernum) + ":\n" + json.dumps(user_prompt) + "\n\n")
 
         response = self.debate_bot.get_response(user_message= json.dumps(user_prompt))
-
+        print("Output from player " + str(self.playernum) + ":\n" + response + "\n\n") 
         return response
     
 
@@ -116,8 +117,13 @@ def tiebreaker(player0: Player, player1: Player, player0_prompt: str, player1_pr
 
     judge_bot = AIDebateBot(name="Judge", system_prompt=tiebreaker_prompt)
 
+    print(user_prompt)
     response = judge_bot.get_response(user_message=json.dumps(user_prompt))
-    return json.loads(response)
+    print("\n\n" + response + "\n\n")
+    try:
+        return json.loads(response)
+    except:
+        return {"winner": "Format error", "explanation": response}
 
 
 def simulate_debate( player0: Player, player1: Player, rounds=3):
