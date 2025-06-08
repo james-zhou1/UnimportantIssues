@@ -99,7 +99,26 @@ def simulate_round(first_player: int, round_num: int, player0: Player, player1: 
 
 
 def tiebreaker(player0: Player, player1: Player, player0_prompt: str, player1_prompt: str):
-    tiebreaker_prompt = f""""""
+   
+    tiebreaker_prompt = """You are a going to make a decision. There has been a tie between 2 teams. 
+    Based on the round history, you will decide who wins. 
+    Each team will send a message to you, telling you why they should be the winner.
+    Your input will be in JSON format, and your output should clearly state the winner (Alice or Bob) 
+    as well as a short explanation. IMPORTANT: your output should be a JSON: {"winner": <Alice or Bob>, "explanation": <short explanation>}
+    """
+    
+    user_prompt = {
+        "Alice's message": player0_prompt,
+        "Bob's message": player1_prompt,
+        "Alice's round history": player0.round_history,
+        "Bob's round history": player1.round_history
+    }
+
+    judge_bot = AIDebateBot(name="Judge", system_prompt=tiebreaker_prompt)
+
+    response = judge_bot.get_response(user_message=json.dumps(user_prompt))
+    return json.loads(response)
+
 
 def simulate_debate( player0: Player, player1: Player, rounds=3):
 
