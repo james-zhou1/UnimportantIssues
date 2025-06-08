@@ -33,7 +33,7 @@ class AIDebateBot:
 class Player:
 
     def __init__(self, playernum, position):
-        self.position
+        self.position = position
         self.playernum = playernum
         self.round_history = []
         self.initial_coaching

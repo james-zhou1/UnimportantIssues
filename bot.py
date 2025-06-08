@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 import discord
 from discord.ext import commands
+from terminal import AIDebateBot, Player, simulate_round
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -19,11 +20,6 @@ TOPICS = {
 }
 
 
-def alice(input = ""):
-    return "Hi."
-
-def bob(input = ""):
-    return "Bye."
 
 async def send_challenge(ctx):
     # Create a button view for accepting the debate challenge
@@ -71,7 +67,10 @@ async def debate(ctx):
     else:
         bob_stance, alice_stance = stances
 
+    alice_player_obj = Player(0, alice_stance)
+    bob_player_obj = Player(1, bob_stance)
 
+    FIRST_PLAYER = random.randint(0, 1)
 
     NUM_ROUNDS = 3
 
@@ -85,6 +84,7 @@ async def debate(ctx):
         await ctx.send(embed=embed)
         # Get instructions from coaches
 
+
         def check_alice(m):
             return m.author.id == alice_id and m.channel == ctx.channel
         def check_bob(m):
@@ -94,6 +94,7 @@ async def debate(ctx):
             alice_instructions = await bot.wait_for('message', check=check_alice, timeout=30.0)
         except asyncio.TimeoutError:
             await ctx.send("Time's up! One of the coaches took too long to respond.")
+
 
         try:
             await ctx.send(f"<@{bob_id}>, please give instructions to Bob (30 seconds):")
@@ -110,12 +111,15 @@ async def debate(ctx):
         await ctx.send(embed=embed)
         
 
+        FIRST_PLAYER ^= 1
         # Get responses from Alice and Bob
-        alice_response = alice(alice_instructions.content)
-        bob_response = bob(bob_instructions.content)
+        alice_response, bob_response = simulate_round(FIRST_PLAYER, round - 1, alice_player_obj, bob_player_obj, alice_instructions.content, bob_instructions.content)
         
+        await asyncio.sleep(5)
         await ctx.send(f"Alice: {alice_response}")
+        await asyncio.sleep(5)
         await ctx.send(f"Bob: {bob_response}")
+        await asyncio.sleep(5)
 
 # Start the bot
 bot.run(TOKEN)
