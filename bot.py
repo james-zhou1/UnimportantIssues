@@ -104,7 +104,7 @@ async def debate(ctx):
         
         
         embed = discord.Embed(
-            title=f"Round {round + 1}",
+            title=f"Round {round}",
             description="Debate phase! Alice and Bob will respond to each other.",
             color=discord.Color.blue()
         )
