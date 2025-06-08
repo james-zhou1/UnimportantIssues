@@ -39,11 +39,11 @@ class Player:
         self.playernum = playernum
         self.round_history = []
 
-        system_prompt = f"""You are a debate bot. Your goal is to argue your position: {self.position}. 
+        system_prompt = f"""You are a debate bot. You will argue your position by all means necessary: {self.position}. 
         If you are convinced by the opponent, you should say the phrase 'I concede.' Never add extra prose. 
-         All your input will be in JSON format representing the history of the debate. 
+         All your input will be in JSON format representing the coaching instruction for this round, the round instruction for this round, and the history of the debate. 
          Here is how the debate will work by round: [coaching for you, P0 argues,P1 responds], [coaching for you, P1 argues,P0 responds], etc. 
-          You are player {playernum}."""
+        You are player {playernum}."""
         
         self.debate_bot = AIDebateBot(name=f"Player {playernum}", system_prompt=system_prompt)
 
@@ -52,11 +52,11 @@ class Player:
         if which_player_first == self.playernum:
             instructions = "You are the first to speak in this round."
         else:
-            instructions = f"This is the opponent's message: '{opponent_message}'"
+            instructions = f"This is the opponent's message. Respond to it: '{opponent_message}'"
         
         user_prompt = {
             "coaching_prompt": coaching_prompt,
-            "instructions": instructions,
+            "round_instructions": instructions,
             "round_history": self.round_history
         }
 
@@ -85,17 +85,16 @@ def simulate_round(first_player: int, round_num: int, player0: Player, player1: 
 
     # who goes first
     if first_player == 0:
-        p0_response = player0.play_round(round_num, first_player, player0_coaching, "")
-        p1_response = player1.play_round(round_num, first_player, player1_coaching, p0_response)
+        p0_response = player0.play_round(round_num, first_player, player0_coaching, "")["response"]
+        p1_response = player1.play_round(round_num, first_player, player1_coaching, p0_response)["response"]
     else:
-        p1_response = player1.play_round(round_num, first_player, player1_coaching, "")
-        p0_response = player0.play_round(round_num, first_player, player0_coaching, p1_response)
+        p1_response = player1.play_round(round_num, first_player, player1_coaching, "")["response"]
+        p0_response = player0.play_round(round_num, first_player, player0_coaching, p1_response)["response"]
 
     player0.add_round(round_num, first_player, p0_response, p1_response, player0_coaching)
     player1.add_round(round_num, first_player, p1_response, p0_response, player1_coaching)
     
     return p0_response, p1_response
-
 
 
 def simulate_debate( player0: Player, player1: Player, rounds=3):
