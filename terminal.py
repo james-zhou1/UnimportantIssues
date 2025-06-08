@@ -14,7 +14,7 @@ class AIDebateBot:
     def get_response(self, user_message=None):
         chat_completion = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
-            max_tokens=800,
+            max_tokens=300,
              messages=[
                 {
                     "role": "system",
@@ -44,7 +44,7 @@ class Player:
         If you are convinced by the opponent, you should say the phrase 'I concede.' Never add extra prose. 
          All your input will be in JSON format representing the coaching instruction for this round, the round instruction for this round, and the history of the debate. 
          Here is how the debate will work by round: [coaching for you, P0 argues,P1 responds], [coaching for you, P1 argues,P0 responds], etc. 
-        You are player {playernum}. IMPORTANT: your output should just be your response to the round_instructions. Not a JSON."""
+        You are player {playernum}. IMPORTANT: your output should just be your response to the round_instructions. Not a JSON. """
         
         self.debate_bot = AIDebateBot(name=f"Player {playernum}", system_prompt=system_prompt)
 
