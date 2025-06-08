@@ -84,16 +84,18 @@ def simulate_round(first_player: int, round_num: int, player0: Player, player1: 
 
     # who goes first
     if first_player == 0:
-        first_response = player0.play_round(round_num, first_player, player0_coaching, "")
-        rebuttal = player1.play_round(round_num, first_player, player1_coaching, first_response)
+        p0_response = player0.play_round(round_num, first_player, player0_coaching, "")
+        p1_response = player1.play_round(round_num, first_player, player1_coaching, first_response)
     else:
-        first_response = player1.play_round(round_num, first_player, player1_coaching, "")
-        rebuttal = player0.play_round(round_num, first_player, player0_coaching, first_response)
+        p1_response = player1.play_round(round_num, first_player, player1_coaching, "")
+        p0_response = player0.play_round(round_num, first_player, player0_coaching, first_response)
 
-    player0.add_round(round_num, first_player, first_response, rebuttal, player0_coaching)
-    player1.add_round(round_num, first_player, rebuttal, first_response, player1_coaching)
+    player0.add_round(round_num, first_player, p0_response, p1_response, player0_coaching)
+    player1.add_round(round_num, first_player, p1_response, p0_response, player1_coaching)
     
-    
+    return p0_response, p1_response
+
+
 
 def simulate_debate( player0: Player, player1: Player, rounds=3):
 
