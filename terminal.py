@@ -38,11 +38,11 @@ class Player:
         self.round_history = []
         self.initial_coaching
 
-        system_prompt = f"You are a debate bot. Your goal is to argue your position: {self.position}. 
+        system_prompt = f"""You are a debate bot. Your goal is to argue your position: {self.position}. 
         If you are convinced by the opponent, you should say the phrase 'I concede.' Never add extra prose. 
          All your input will be in JSON format representing the history of the debate. 
          Here is how the debate will work by round: [coaching for you, P0 argues,P1 responds], [coaching for you, P1 argues,P0 responds], etc. 
-          You are player {playernum}."
+          You are player {playernum}."""
         
         self.debate_bot = AIDebateBot(name=f"Player {playernum}", system_prompt=system_prompt)
 
