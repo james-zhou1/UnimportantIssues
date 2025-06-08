@@ -1,0 +1,102 @@
+import asyncio
+import os
+from dotenv import load_dotenv
+import discord
+from discord.ext import commands
+
+intents = discord.Intents.default()
+intents.message_content = True
+bot = commands.Bot(command_prefix='$', intents=intents)
+
+# Load environment variables
+load_dotenv()
+
+# Get the token from environment variable
+TOKEN = os.getenv('DISCORD_TOKEN')
+
+
+def alice(input = ""):
+    return "Hi."
+
+def bob(input = ""):
+    return "Bye."
+
+async def send_challenge(ctx):
+    # Create a button view for accepting the debate challenge
+    class AcceptDebateButton(discord.ui.View):
+        def __init__(self):
+            super().__init__()
+            self.value = None
+
+        @discord.ui.button(label='Accept Debate Challenge', style=discord.ButtonStyle.green)
+        async def accept(self, interaction: discord.Interaction, button: discord.ui.Button):
+            self.value = interaction.user
+            self.stop()
+
+    # Create and send the button
+    view = AcceptDebateButton()
+    await ctx.send("Click the button to accept the debate challenge:", view=view)
+
+    # Wait for someone to click the button
+    timeout = 30.0
+    try:
+        await view.wait()
+    except asyncio.TimeoutError:
+        await ctx.send("No one accepted the debate challenge. Please try again.")
+        return
+
+    if view.value:
+        await ctx.send(f"{view.value.mention} has accepted the challenge!")
+
+    return view.value.id, ctx.author.id
+
+@bot.command(name='debate')
+async def debate(ctx):
+    alice_id, bob_id = await send_challenge(ctx)
+
+    NUM_ROUNDS = 3
+
+    for round in range(1, NUM_ROUNDS + 1):
+        # Send round 1 message as an embed
+        embed = discord.Embed(
+            title=f"Round {round}",
+            description="Coaching phase! Both coaches should give instructions to their respective bots.",
+            color=discord.Color.blue()
+        )
+        await ctx.send(embed=embed)
+        # Get instructions from coaches
+
+        def check_alice(m):
+            return m.author.id == alice_id and m.channel == ctx.channel
+        def check_bob(m):
+            return m.author.id == bob_id and m.channel == ctx.channel
+        try:
+            await ctx.send(f"<@{alice_id}>, please give instructions to Alice (30 seconds):")
+            alice_instructions = await bot.wait_for('message', check=check_alice, timeout=30.0)
+        except asyncio.TimeoutError:
+            await ctx.send("Time's up! One of the coaches took too long to respond.")
+
+        try:
+            await ctx.send(f"<@{bob_id}>, please give instructions to Bob (30 seconds):")
+            bob_instructions = await bot.wait_for('message', check=check_bob, timeout=30.0)
+        except asyncio.TimeoutError:
+            await ctx.send("Time's up! One of the coaches took too long to respond.")
+        
+        
+        embed = discord.Embed(
+            title=f"Round {round + 1}",
+            description="Debate phase! Alice and Bob will respond to each other.",
+            color=discord.Color.blue()
+        )
+        await ctx.send(embed=embed)
+        
+        # Get responses from Alice and Bob
+        alice_response = alice(alice_instructions.content)
+        bob_response = bob(bob_instructions.content)
+        
+        await ctx.send(f"Alice: {alice_response}")
+        await ctx.send(f"Bob: {bob_response}")
+
+# Start the bot
+bot.run(TOKEN)
+            
