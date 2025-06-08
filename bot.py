@@ -91,16 +91,57 @@ async def debate(ctx):
             return m.author.id == bob_id and m.channel == ctx.channel
         try:
             await ctx.send(f"<@{alice_id}>, please give instructions to Alice (30 seconds):")
-            alice_instructions = await bot.wait_for('message', check=check_alice, timeout=30.0)
+            # Create tasks for both the timeout warning and waiting for message
+            warning_task = asyncio.create_task(asyncio.sleep(25))  # 25 seconds for warning
+            message_task = asyncio.create_task(bot.wait_for('message', check=check_alice))
+            
+            # Wait for either task to complete
+            done, pending = await asyncio.wait(
+                [warning_task, message_task],
+                return_when=asyncio.FIRST_COMPLETED
+            )
+            
+            # If warning completed first, send warning and continue waiting
+            if warning_task in done:
+                await ctx.send(f"<@{alice_id}>, 5 seconds remaining!")
+                alice_instructions = await asyncio.wait_for(message_task, timeout=5.0)
+            else:
+                alice_instructions = message_task.result()
+                
+            # Cancel any pending tasks
+            for task in pending:
+                task.cancel()
+                
         except asyncio.TimeoutError:
             await ctx.send("Time's up! One of the coaches took too long to respond.")
-
+            return
 
         try:
             await ctx.send(f"<@{bob_id}>, please give instructions to Bob (30 seconds):")
-            bob_instructions = await bot.wait_for('message', check=check_bob, timeout=30.0)
+            # Create tasks for both the timeout warning and waiting for message
+            warning_task = asyncio.create_task(asyncio.sleep(25))  # 25 seconds for warning
+            message_task = asyncio.create_task(bot.wait_for('message', check=check_bob))
+            
+            # Wait for either task to complete
+            done, pending = await asyncio.wait(
+                [warning_task, message_task],
+                return_when=asyncio.FIRST_COMPLETED
+            )
+            
+            # If warning completed first, send warning and continue waiting
+            if warning_task in done:
+                await ctx.send(f"<@{bob_id}>, 5 seconds remaining!")
+                bob_instructions = await asyncio.wait_for(message_task, timeout=5.0)
+            else:
+                bob_instructions = message_task.result()
+                
+            # Cancel any pending tasks
+            for task in pending:
+                task.cancel()
+                
         except asyncio.TimeoutError:
             await ctx.send("Time's up! One of the coaches took too long to respond.")
+            return
         
         
         embed = discord.Embed(
