@@ -121,6 +121,32 @@ async def debate(ctx):
         await ctx.send(f"Bob: {bob_response}")
         await asyncio.sleep(5)
 
+        # Check for concessions
+        if "i concede" in alice_response.lower() and "i concede" in bob_response.lower():
+            embed = discord.Embed(
+                title="Debate Ended in Draw",
+                description="Both players have conceded! The debate ends in a draw.",
+                color=discord.Color.blue()
+            )
+            await ctx.send(embed=embed)
+            return
+        elif "i concede" in alice_response.lower():
+            embed = discord.Embed(
+                title="Bob Wins!",
+                description="Alice has conceded! Bob wins the debate!",
+                color=discord.Color.blue()
+            )
+            await ctx.send(embed=embed)
+            return
+        elif "I concede" in bob_response.lower():
+            embed = discord.Embed(
+                title="Alice Wins!",
+                description="Bob has conceded! Alice wins the debate!",
+                color=discord.Color.blue()
+            )
+            await ctx.send(embed=embed)
+            return
+
 # Start the bot
 bot.run(TOKEN)
             
